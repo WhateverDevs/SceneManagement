@@ -2,7 +2,8 @@
   "name": "whateverdevs.scenemanagement",
   "version": "0.0.1",
   "dependencies": {
-    "whateverdevs.core": "0.0.51"
+    "whateverdevs.core": "0.0.51",
+    "com.unity.addressables": "1.16.19"
   },
   "displayName": "Scene Management",
   "description": "Whateverdevs' scene management.",
