@@ -14,7 +14,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
         public string ManifestLocation = "Assets/Data/SceneManagement/Manifests/";
 
-        public string[] GroupsToIgnore = {"Built In Data", "Default"};
+        public string[] GroupsToIgnore = {"Default"};
 
         public string InitialManifestVersion = "0.0.1";
 

@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
-using UnityEngine.SceneManagement;
 using WhateverDevs.Core.Runtime.Common;
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
@@ -16,30 +15,42 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
     {
         [Button]
         [EnableIf("@UnityEngine.Application.isPlaying")]
-        public void CheckAvailableScenes()
+        public void CheckAvailableAddressables(Action<AddressableStateReport> callback)
         {
             Logger.Info("Checking addressables...");
 
-            CoroutineRunner.Instance.RunRoutine(CheckAvailableScenesRoutine());
+            CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback));
         }
 
-        private IEnumerator CheckAvailableScenesRoutine()
+        private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback)
         {
-            AsyncOperationHandle<IList<IResourceLocation>> handle = Addressables.LoadResourceLocationsAsync("Scenario");
+            yield return new WaitForSeconds(1);
+            
+            AddressableStateReport report = new AddressableStateReport();
+            
+            AsyncOperationHandle<IList<IResourceLocation>> handle = Addressables.LoadResourceLocationsAsync("Manifest");
 
             yield return handle;
 
             foreach (IResourceLocation location in handle.Result)
             {
-                Logger.Info(location.PrimaryKey);
+                Logger.Info("Checking " + location.PrimaryKey + "...");
 
-                try
+                AsyncOperationHandle<AddressableManifest> manifestHandle =
+                    Addressables.LoadAssetAsync<AddressableManifest>(location);
+
+                yield return manifestHandle;
+
+                AddressableManifest manifest = manifestHandle.Result;
+
+                if (manifest == null)
                 {
-                    Addressables.LoadSceneAsync(location.PrimaryKey, LoadSceneMode.Additive);
+                    Logger.Error(location.PrimaryKey + " is missing!");
+                    report.AddressableStates[location.PrimaryKey] = AddressableState.Missing;
                 }
-                catch (Exception)
+                else
                 {
-                    Logger.Error("Addressable not available!");
+                    Logger.Info(location.PrimaryKey + " found.");
                 }
             }
 

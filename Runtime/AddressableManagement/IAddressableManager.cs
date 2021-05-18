@@ -1,7 +1,9 @@
+using System;
+
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 {
     public interface IAddressableManager
     {
-        void CheckAvailableScenes();
+        void CheckAvailableAddressables(Action<AddressableStateReport> callback);
     }
 }
