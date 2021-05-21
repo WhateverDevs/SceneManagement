@@ -141,6 +141,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 sceneLoadedCallback?.Invoke(false);
                 return;
             }
+            
+            // TODO: Check if the group for this scene has a valid manifest.
 
             CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneReference,
                                                                  loadMode,
