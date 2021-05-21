@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using WhateverDevs.Core.Runtime.Build;
 using WhateverDevs.Core.Runtime.Common;
@@ -19,11 +18,17 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         public string InitialManifestVersion = "0.0.1";
 
         public Version AppVersion;
-    
-        public List<ManifestStringObjectPair> Dependencies = new List<ManifestStringObjectPair>();
-    }
 
-    public class ManifestStringObjectPair : ObjectPair<AddressableManifest, string>
-    {
+        public SerializableDictionary<AddressableManifest, string> Dependencies =
+            new SerializableDictionary<AddressableManifest, string>();
+
+        public AddressableManifest GetManifestByName(string manifestName)
+        {
+            foreach (AddressableManifest manifest in Dependencies.Keys)
+                if (manifest.name == manifestName)
+                    return manifest;
+
+            return null;
+        }
     }
 }

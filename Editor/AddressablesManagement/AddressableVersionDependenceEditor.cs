@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using Varguiniano.ExtendedEditor.Editor;
+using WhateverDevs.Core.Runtime.DataStructures;
 using WhateverDevs.SceneManagement.Runtime.AddressableManagement;
 
 namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
@@ -130,14 +131,14 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
                         EditorUtility.SetDirty(manifest);
 
-                        ManifestStringObjectPair dependency = null;
+                        ObjectPair<AddressableManifest, string> dependency = null;
 
-                        List<ManifestStringObjectPair> dependenciesToRemove =
-                            new List<ManifestStringObjectPair>();
+                        List<ObjectPair<AddressableManifest, string>> dependenciesToRemove =
+                            new List<ObjectPair<AddressableManifest, string>>();
 
                         for (int j = 0; j < TargetObject.Dependencies.Count; ++j)
                         {
-                            ManifestStringObjectPair dependencyCandidate = TargetObject.Dependencies[j];
+                            ObjectPair<AddressableManifest, string> dependencyCandidate = TargetObject.Dependencies[j];
 
                             if (dependencyCandidate.Key == null || !groupNames.Contains(dependencyCandidate.Key.name))
                                 dependenciesToRemove.Add(dependencyCandidate);
@@ -150,7 +151,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
                         if (dependency == null)
                         {
-                            dependency = new ManifestStringObjectPair {Key = manifest};
+                            dependency = new ObjectPair<AddressableManifest, string> {Key = manifest};
                             TargetObject.Dependencies.Add(dependency);
                         }
 

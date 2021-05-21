@@ -1,12 +1,14 @@
-using System.Collections.Generic;
+using System;
+using WhateverDevs.Core.Runtime.DataStructures;
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 {
+    [Serializable]
     public class AddressableStateReport
     {
-        public Dictionary<string, AddressableState> AddressableStates;
+        public SerializableDictionary<string, AddressableState> AddressableStates;
 
-        public AddressableStateReport() => AddressableStates = new Dictionary<string, AddressableState>();
+        public AddressableStateReport() => AddressableStates = new SerializableDictionary<string, AddressableState>();
     }
 
     public enum AddressableState

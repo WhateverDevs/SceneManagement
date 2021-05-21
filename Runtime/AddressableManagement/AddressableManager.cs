@@ -16,11 +16,11 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
     public class AddressableManager : LoggableScriptableObject<AddressableManager>, IAddressableManager
     {
         public AddressableVersionDependence AddressableVersionDependence;
-        
+
         [Inject]
         [HideInInspector]
         public Version Version;
-        
+
         [Button]
         [EnableIf("@UnityEngine.Application.isPlaying")]
         public void CheckAvailableAddressables(Action<AddressableStateReport> callback)
@@ -62,14 +62,47 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 else
                 {
                     Logger.Info(location.PrimaryKey + " manifest found.");
-                    Logger.Info(manifest.name + " version is " + manifest.Version + ".");
-                    
-                    
-                    
+                    Logger.Info(manifest.name + " version is " + manifest.FullVersion + ".");
+
+                    if (string.Compare(manifest.FullVersion,
+                                       AddressableVersionDependence.Dependencies[AddressableVersionDependence
+                                          .GetManifestByName(manifest.name)],
+                                       StringComparison.Ordinal)
+                      < 0)
+                    {
+                        Logger.Warn(manifest.name + " version is older than required.");
+
+                        report.AddressableStates[location.PrimaryKey] =
+                            AddressableState.AddressableVersionLowerThanAppRequires;
+                    }
+                    else
+                    {
+                        Logger.Info(manifest.name + " has a compatible version.");
+
+                        if (string.Compare(Version.FullVersion,
+                                           manifest.MinimumAppVersion,
+                                           StringComparison.Ordinal)
+                          < 0)
+                        {
+                            Logger.Warn("App version is older than what " + manifest.name + " requires.");
+
+                            report.AddressableStates[location.PrimaryKey] =
+                                AddressableState.AppVersionLowerThanAddressableRequires;
+                        }
+                        else
+                        {
+                            Logger.Info("App version is compatible with " + manifest.name + ".");
+
+                            report.AddressableStates[location.PrimaryKey] =
+                                AddressableState.Correct;
+                        }
+                    }
                 }
             }
 
             Addressables.Release(manifestsHandle);
+
+            callback?.Invoke(report);
         }
     }
 }
