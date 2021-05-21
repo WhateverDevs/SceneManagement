@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.SceneManagement;
 using WhateverDevs.Core.Runtime.Common;
 using Zenject;
 using Version = WhateverDevs.Core.Runtime.Build.Version;
@@ -17,9 +19,16 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
     {
         public AddressableVersionDependence AddressableVersionDependence;
 
+        [ShowInInspector]
+        [ReadOnly]
+        private AddressableStateReport addressableStateReport;
+
         [Inject]
         [HideInInspector]
         public Version Version;
+
+        [Button]
+        public void Reset() => addressableStateReport = null;
 
         [Button]
         [EnableIf("@UnityEngine.Application.isPlaying")]
@@ -27,14 +36,15 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         {
             Logger.Info("Checking addressables...");
 
-            CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback));
+            if (addressableStateReport == null)
+                CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback));
+            else
+                callback?.Invoke(addressableStateReport);
         }
 
         private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback)
         {
-            yield return new WaitForSeconds(1);
-
-            AddressableStateReport report = new AddressableStateReport();
+            addressableStateReport = new AddressableStateReport();
 
             AsyncOperationHandle<IList<IResourceLocation>> manifestsHandle =
                 Addressables.LoadResourceLocationsAsync("Manifest");
@@ -57,43 +67,58 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 if (manifest == null)
                 {
                     Logger.Error(location.PrimaryKey + " manifest is missing!");
-                    report.AddressableStates[location.PrimaryKey] = AddressableState.Missing;
+
+                    addressableStateReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
+                        AddressableState.Missing;
                 }
                 else
                 {
                     Logger.Info(location.PrimaryKey + " manifest found.");
-                    Logger.Info(manifest.name + " version is " + manifest.FullVersion + ".");
+
+                    string requiredVersion = AddressableVersionDependence.Dependencies[AddressableVersionDependence
+                       .GetManifestByName(manifest.name)];
 
                     if (string.Compare(manifest.FullVersion,
-                                       AddressableVersionDependence.Dependencies[AddressableVersionDependence
-                                          .GetManifestByName(manifest.name)],
+                                       requiredVersion,
                                        StringComparison.Ordinal)
                       < 0)
                     {
-                        Logger.Warn(manifest.name + " version is older than required.");
+                        Logger.Warn(manifest.name
+                                  + " version("
+                                  + manifest.FullVersion
+                                  + ") is older than required("
+                                  + requiredVersion
+                                  + ").");
 
-                        report.AddressableStates[location.PrimaryKey] =
+                        addressableStateReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
                             AddressableState.AddressableVersionLowerThanAppRequires;
                     }
                     else
                     {
-                        Logger.Info(manifest.name + " has a compatible version.");
-
                         if (string.Compare(Version.FullVersion,
                                            manifest.MinimumAppVersion,
                                            StringComparison.Ordinal)
                           < 0)
                         {
-                            Logger.Warn("App version is older than what " + manifest.name + " requires.");
+                            Logger.Warn("App version("
+                                      + Version.FullVersion
+                                      + ") is older than what "
+                                      + manifest.name
+                                      + " requires("
+                                      + manifest.MinimumAppVersion
+                                      + ").");
 
-                            report.AddressableStates[location.PrimaryKey] =
+                            addressableStateReport.AddressableStates
+                                    [LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
                                 AddressableState.AppVersionLowerThanAddressableRequires;
                         }
                         else
                         {
+                            Logger.Info(manifest.name + " version is compatible with the app.");
                             Logger.Info("App version is compatible with " + manifest.name + ".");
 
-                            report.AddressableStates[location.PrimaryKey] =
+                            addressableStateReport.AddressableStates
+                                    [LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
                                 AddressableState.Correct;
                         }
                     }
@@ -102,7 +127,55 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
             Addressables.Release(manifestsHandle);
 
-            callback?.Invoke(report);
+            callback?.Invoke(addressableStateReport);
         }
+
+        public void LoadScene(AssetReference sceneReference,
+                              LoadSceneMode loadMode,
+                              Action<float> progressCallback,
+                              Action<bool> sceneLoadedCallback)
+        {
+            if (sceneReference == null)
+            {
+                Logger.Error("Given scene is null!");
+                sceneLoadedCallback?.Invoke(false);
+                return;
+            }
+
+            CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneReference,
+                                                                 loadMode,
+                                                                 progressCallback,
+                                                                 sceneLoadedCallback));
+        }
+
+        private IEnumerator LoadSceneRoutine(AssetReference sceneReference,
+                                             LoadSceneMode loadMode,
+                                             Action<float> progressCallback,
+                                             Action<bool> sceneLoadedCallback)
+        {
+            AsyncOperationHandle<SceneInstance> operation;
+
+            try
+            {
+                operation = sceneReference.LoadSceneAsync(loadMode);
+            }
+            catch (Exception e)
+            {
+                Logger.Fatal(e.Message + "\n" + e.StackTrace);
+                sceneLoadedCallback?.Invoke(false);
+                yield break;
+            }
+
+            while (!operation.IsDone)
+            {
+                Logger.Info("Loading " + sceneReference.SubObjectName + " scene - " + operation.PercentComplete + ".");
+                progressCallback?.Invoke(operation.PercentComplete);
+                yield return new WaitForEndOfFrame();
+            }
+
+            sceneLoadedCallback?.Invoke(true);
+        }
+
+        private static string LocationPrimaryKeyToGroupName(string primaryKey) => primaryKey.Split('/')[1];
     }
 }

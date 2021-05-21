@@ -7,9 +7,11 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
     public class AddressableManagerInstaller : ScriptableObjectInstaller
     {
         public AddressableManager AddressableManager;
-        
+
         public override void InstallBindings()
         {
+            AddressableManager.Reset();
+
             Container.QueueForInject(AddressableManager);
 
             Container.Bind<IAddressableManager>().FromInstance(AddressableManager).AsSingle().Lazy();
