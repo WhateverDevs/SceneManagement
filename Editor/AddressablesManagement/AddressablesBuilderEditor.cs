@@ -37,7 +37,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
                 return;
             }
-            
+
             EditorGUILayout
                .HelpBox("Remember that the build location can't be changed by this tool. You have to set it on the group schemata.",
                         MessageType.Info);
@@ -73,7 +73,16 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                                                      (float) i / groups.Count);
 
                     foreach (AddressableAssetEntry asset in addressableAssetGroup.entries)
+                    {
                         asset.SetLabel(addressableAssetGroup.Name, true);
+
+                        if (!asset.labels.Contains("Manifest")) continue;
+                        AddressableManifest manifest = (AddressableManifest) asset.MainAsset;
+                        manifest.UpdateFullVersion();
+                        EditorUtility.SetDirty(manifest);
+                    }
+
+                    AssetDatabase.Refresh();
                 }
 
                 AddressableAssetSettings.BuildPlayerContent();
