@@ -175,6 +175,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 progressCallback?.Invoke(operation.PercentComplete);
                 yield return new WaitForEndOfFrame();
             }
+            
+            Logger.Info("Scene " + sceneReference.editorAsset.name + " loaded.");
 
             sceneLoadedCallback?.Invoke(true);
         }
