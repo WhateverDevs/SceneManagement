@@ -142,7 +142,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 return;
             }
             
-            // TODO: Check if the group for this scene has a valid manifest.
+            // TODO: How the fuck do we get the labels of the scene from the asset reference?
+            // TODO: We can't check its manifest without its labels.
 
             CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneReference,
                                                                  loadMode,

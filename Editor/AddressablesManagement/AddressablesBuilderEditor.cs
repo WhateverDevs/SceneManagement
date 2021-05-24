@@ -37,8 +37,10 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
                 return;
             }
-
-            PaintProperty("FolderToBuildTo");
+            
+            EditorGUILayout
+               .HelpBox("Remember that the build location can't be changed by this tool. You have to set it on the group schemata.",
+                        MessageType.Info);
 
             if (GUILayout.Button("Build")) Build();
         }
@@ -47,7 +49,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
         {
             try
             {
-                EditorUtility.DisplayProgressBar(ProgressBarTitle, "Creating tags for groups..", .0f);
+                EditorUtility.DisplayProgressBar(ProgressBarTitle, "Creating tags for groups...", .33f);
 
                 List<AddressableAssetGroup> groups = addressableAssetSettings.groups;
 

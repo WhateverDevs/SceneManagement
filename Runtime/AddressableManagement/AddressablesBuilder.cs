@@ -7,8 +7,6 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                      fileName = "AddressablesBuilder")]
     public class AddressablesBuilder : LoggableScriptableObject<AddressablesBuilder>
     {
-        public string FolderToBuildTo = "Bundles";
-
         public AddressableVersionDependence VersionDependence;
     }
 }
