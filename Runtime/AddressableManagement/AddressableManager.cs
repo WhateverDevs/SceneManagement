@@ -23,6 +23,10 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         [ReadOnly]
         private AddressableStateReport addressableStateReport;
 
+        [ShowInInspector]
+        [ReadOnly]
+        private List<AddressableManifest> manifests = new List<AddressableManifest>();
+
         [Inject]
         [HideInInspector]
         public Version Version;
@@ -69,11 +73,13 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                     Logger.Error(location.PrimaryKey + " manifest is missing!");
 
                     addressableStateReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
-                        AddressableState.Missing;
+                        AddressableVersionState.Missing;
                 }
                 else
                 {
                     Logger.Info(location.PrimaryKey + " manifest found.");
+
+                    manifests.Add(manifest);
 
                     string requiredVersion = AddressableVersionDependence.Dependencies[AddressableVersionDependence
                        .GetManifestByName(manifest.name)];
@@ -91,7 +97,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                                   + ").");
 
                         addressableStateReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
-                            AddressableState.AddressableVersionLowerThanAppRequires;
+                            AddressableVersionState.AddressableVersionLowerThanAppRequires;
                     }
                     else
                     {
@@ -110,7 +116,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
                             addressableStateReport.AddressableStates
                                     [LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
-                                AddressableState.AppVersionLowerThanAddressableRequires;
+                                AddressableVersionState.AppVersionLowerThanAddressableRequires;
                         }
                         else
                         {
@@ -119,13 +125,15 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
                             addressableStateReport.AddressableStates
                                     [LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
-                                AddressableState.Correct;
+                                AddressableVersionState.Correct;
                         }
                     }
                 }
             }
 
             Addressables.Release(manifestsHandle);
+
+            Logger.Info("Cached addressables manifest state.");
 
             callback?.Invoke(addressableStateReport);
         }
@@ -142,15 +150,18 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 sceneLoadedCallback?.Invoke(false);
                 return;
             }
-            
-            // TODO: How the fuck do we get the labels of the scene from the asset reference?
-            // TODO: We can't check its manifest without its labels.
 
-            CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneReference,
-                                                                 sceneName,
-                                                                 loadMode,
-                                                                 progressCallback,
-                                                                 sceneLoadedCallback));
+            if (IsAssetInAValidManifest(sceneReference))
+                CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneReference,
+                                                                     sceneName,
+                                                                     loadMode,
+                                                                     progressCallback,
+                                                                     sceneLoadedCallback));
+            else
+            {
+                Logger.Error("Scene " + sceneName + " does not have a valid manifest!");
+                sceneLoadedCallback?.Invoke(false);
+            }
         }
 
         private IEnumerator LoadSceneRoutine(AssetReference sceneReference,
@@ -178,12 +189,24 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 progressCallback?.Invoke(operation.PercentComplete);
                 yield return new WaitForEndOfFrame();
             }
-            
+
             Logger.Info("Scene " + sceneName + " loaded.");
 
             sceneLoadedCallback?.Invoke(true);
         }
 
         private static string LocationPrimaryKeyToGroupName(string primaryKey) => primaryKey.Split('/')[1];
+
+        private bool IsAssetInAValidManifest(AssetReference asset)
+        {
+            for (int i = 0; i < manifests.Count; ++i)
+                if (manifests[i].AssetGuids.Contains(asset.RuntimeKey.ToString()))
+                    return addressableStateReport.AddressableStates[manifests[i].name]
+                        == AddressableVersionState.Correct;
+
+            Logger.Error("No manifest found for asset!");
+
+            return false;
+        }
     }
 }

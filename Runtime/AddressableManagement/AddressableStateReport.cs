@@ -6,12 +6,12 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
     [Serializable]
     public class AddressableStateReport
     {
-        public SerializableDictionary<string, AddressableState> AddressableStates;
+        public SerializableDictionary<string, AddressableVersionState> AddressableStates;
 
-        public AddressableStateReport() => AddressableStates = new SerializableDictionary<string, AddressableState>();
+        public AddressableStateReport() => AddressableStates = new SerializableDictionary<string, AddressableVersionState>();
     }
 
-    public enum AddressableState
+    public enum AddressableVersionState
     {
         Missing,
         AddressableVersionLowerThanAppRequires,

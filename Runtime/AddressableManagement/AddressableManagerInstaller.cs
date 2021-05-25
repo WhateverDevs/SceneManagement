@@ -13,6 +13,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             AddressableManager.Reset();
 
             Container.QueueForInject(AddressableManager);
+            
+            AddressableManager.CheckAvailableAddressables(null);
 
             Container.Bind<IAddressableManager>().FromInstance(AddressableManager).AsSingle().Lazy();
         }

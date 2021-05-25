@@ -76,9 +76,20 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                     {
                         asset.SetLabel(addressableAssetGroup.Name, true);
 
+                        EditorUtility.DisplayProgressBar(ProgressBarTitle,
+                                                         "Registering assets to manifest "
+                                                       + addressableAssetGroup.Name
+                                                       + "...",
+                                                         (float) i / groups.Count);
+
                         if (!asset.labels.Contains("Manifest")) continue;
                         AddressableManifest manifest = (AddressableManifest) asset.MainAsset;
                         manifest.UpdateFullVersion();
+                        manifest.AssetGuids.Clear();
+
+                        foreach (AddressableAssetEntry entry in addressableAssetGroup.entries)
+                            manifest.AssetGuids.Add(entry.guid);
+
                         EditorUtility.SetDirty(manifest);
                     }
 
