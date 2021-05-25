@@ -11,6 +11,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         void CheckAvailableAddressables(Action<AddressableStateReport> callback);
 
         void LoadScene(AssetReference sceneReference,
+                       string sceneName,
                        LoadSceneMode loadMode,
                        Action<float> progressCallback,
                        Action<bool> sceneLoadedCallback);

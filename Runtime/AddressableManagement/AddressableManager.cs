@@ -131,6 +131,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         }
 
         public void LoadScene(AssetReference sceneReference,
+                              string sceneName,
                               LoadSceneMode loadMode,
                               Action<float> progressCallback,
                               Action<bool> sceneLoadedCallback)
@@ -146,12 +147,14 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             // TODO: We can't check its manifest without its labels.
 
             CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneReference,
+                                                                 sceneName,
                                                                  loadMode,
                                                                  progressCallback,
                                                                  sceneLoadedCallback));
         }
 
         private IEnumerator LoadSceneRoutine(AssetReference sceneReference,
+                                             string sceneName,
                                              LoadSceneMode loadMode,
                                              Action<float> progressCallback,
                                              Action<bool> sceneLoadedCallback)
@@ -176,7 +179,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 yield return new WaitForEndOfFrame();
             }
             
-            Logger.Info("Scene " + sceneReference.editorAsset.name + " loaded.");
+            Logger.Info("Scene " + sceneName + " loaded.");
 
             sceneLoadedCallback?.Invoke(true);
         }

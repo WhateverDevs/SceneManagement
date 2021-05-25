@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using Varguiniano.ExtendedEditor.Editor;
 using WhateverDevs.Core.Runtime.Common;
 using WhateverDevs.SceneManagement.Runtime.SceneManagement;
@@ -74,7 +75,7 @@ namespace Editor.SceneManagement
                        .HelpBox("Remember to click the save button after editing!",
                                 MessageType.Warning);
 
-                    if (GUILayout.Button("Save library and build settings")) SaveList();
+                    if (GUILayout.Button("Save library and build settings")) SaveNonAddressableList();
                     reorderableList.DoLayoutList();
                 }
 
@@ -95,6 +96,12 @@ namespace Editor.SceneManagement
                     EditorGUILayout
                        .HelpBox("Also don't add non scene assets here.",
                                 MessageType.Warning);
+
+                    EditorGUILayout
+                       .HelpBox("Remember to click on cache scene references after editing!",
+                                MessageType.Warning);
+
+                    if (GUILayout.Button("Cache scene references")) CacheAddressableReferences();
 
                     PaintProperty("AddressableScenes", true);
                 }
@@ -133,7 +140,7 @@ namespace Editor.SceneManagement
         /// <summary>
         /// Saves the scene list.
         /// </summary>
-        private void SaveList()
+        private void SaveNonAddressableList()
         {
             List<string> scenesToSave = new List<string>();
             List<EditorBuildSettingsScene> scenesToBuild = new List<EditorBuildSettingsScene>();
@@ -167,5 +174,17 @@ namespace Editor.SceneManagement
                                                   false),
                     onAddCallback = list => sceneList.Add(null)
                 };
+
+        /// <summary>
+        /// Cache the scene names and guids for runtime use.
+        /// </summary>
+        private void CacheAddressableReferences()
+        {
+            TargetObject.SceneNameGuidDictionary.Clear();
+
+            foreach (AssetReference assetReference in TargetObject.AddressableScenes)
+                TargetObject.SceneNameGuidDictionary[assetReference.editorAsset.name] =
+                    assetReference.RuntimeKey.ToString();
+        }
     }
 }

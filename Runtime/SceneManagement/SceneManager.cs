@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 using WhateverDevs.Core.Runtime.Common;
+using WhateverDevs.Core.Runtime.DataStructures;
 using WhateverDevs.SceneManagement.Runtime.AddressableManagement;
 using Zenject;
 
@@ -28,6 +29,12 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         public List<AssetReference> AddressableScenes = new List<AssetReference>();
 
         /// <summary>
+        /// Dictionary with the equivalence between addressable scene names and their guids.
+        /// </summary>
+        public SerializableDictionary<string, string> SceneNameGuidDictionary =
+            new SerializableDictionary<string, string>();
+
+        /// <summary>
         /// Array of all the scenes, both in build and addressable.
         /// </summary>
         public string[] SceneNames => SceneNamesList.ToArray();
@@ -44,7 +51,8 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
                 for (int i = 0; i < NonAddressableScenes.Count; ++i)
                     list.Add(Path.GetFileNameWithoutExtension(NonAddressableScenes[i]));
 
-                for (int i = 0; i < AddressableScenes.Count; ++i) list.Add(AddressableScenes[i].editorAsset.name);
+                for (int i = 0; i < AddressableScenes.Count; ++i)
+                    list.Add(GetSceneNameFromGuid(AddressableScenes[i].RuntimeKey.ToString()));
 
                 return list;
             }
@@ -98,7 +106,11 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
                     yield break;
                 }
 
-                AddressableManager.LoadScene(scene, mode, progressCallback, callback);
+                AddressableManager.LoadScene(scene,
+                                             GetSceneNameFromGuid(scene.RuntimeKey.ToString()),
+                                             mode,
+                                             progressCallback,
+                                             callback);
 
                 // TODO: Keep track of loaded scenes.
             }
@@ -142,11 +154,27 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         /// <returns></returns>
         private AssetReference GetSceneAddressable(string sceneName)
         {
+            string guid = SceneNameGuidDictionary[sceneName];
+
             for (int i = 0; i < AddressableScenes.Count; ++i)
-                if (sceneName == AddressableScenes[i].editorAsset.name)
+                if (guid == AddressableScenes[i].RuntimeKey.ToString())
                     return AddressableScenes[i];
 
             return null;
+        }
+
+        /// <summary>
+        /// Get the name of a scene from its guid.
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        private string GetSceneNameFromGuid(string guid)
+        {
+            foreach (KeyValuePair<string, string> keyValuePair in SceneNameGuidDictionary)
+                if (keyValuePair.Value == guid)
+                    return keyValuePair.Key;
+
+            throw new KeyNotFoundException();
         }
     }
 }
