@@ -19,6 +19,8 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         /// </summary>
         public override void InstallBindings()
         {
+            SceneManager.Reset();
+            
             Container.QueueForInject(SceneManager);
 
             Container.Bind<SceneManager>().FromInstance(SceneManager).AsSingle().Lazy();

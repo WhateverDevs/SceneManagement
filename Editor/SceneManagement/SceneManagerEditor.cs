@@ -25,7 +25,15 @@ namespace Editor.SceneManagement
         /// </summary>
         private ReorderableList reorderableList;
 
-        private string selectedScene;
+        /// <summary>
+        /// Selected scene to load.
+        /// </summary>
+        private string selectedSceneToLoad;
+
+        /// <summary>
+        /// Selected scene to unload.
+        /// </summary>
+        private string selectedSceneToUnload;
 
         /// <summary>
         /// Called when this object is enabled.
@@ -43,20 +51,48 @@ namespace Editor.SceneManagement
         {
             if (Application.isPlaying)
             {
-                if (selectedScene.IsNullEmptyOrWhiteSpace()) selectedScene = TargetObject.SceneNames[0];
+                if (selectedSceneToLoad.IsNullEmptyOrWhiteSpace()) selectedSceneToLoad = TargetObject.SceneNames[0];
 
                 EditorGUILayout.BeginHorizontal();
 
                 {
-                    selectedScene =
+                    selectedSceneToLoad =
                         TargetObject.SceneNames
-                            [EditorGUILayout.Popup(TargetObject.SceneNamesList.IndexOf(selectedScene),
+                            [EditorGUILayout.Popup(TargetObject.SceneNamesList.IndexOf(selectedSceneToLoad),
                                                    TargetObject.SceneNames)];
 
-                    if (GUILayout.Button("Load")) TargetObject.LoadScene(selectedScene, null, null);
+                    if (GUILayout.Button("Load")) TargetObject.LoadScene(selectedSceneToLoad, null, null);
                 }
 
                 EditorGUILayout.EndHorizontal();
+
+                if (TargetObject.LoadedScenes.Count > 1)
+                {
+                    if (selectedSceneToUnload.IsNullEmptyOrWhiteSpace()
+                     || !TargetObject.LoadedScenes.Contains(selectedSceneToUnload))
+                        selectedSceneToUnload = TargetObject.LoadedScenes[0];
+
+                    EditorGUILayout.BeginHorizontal();
+
+                    {
+                        selectedSceneToUnload =
+                            TargetObject.LoadedScenes
+                                [EditorGUILayout.Popup(TargetObject.LoadedScenes.IndexOf(selectedSceneToUnload),
+                                                       TargetObject.LoadedScenes.ToArray())];
+
+                        if (GUILayout.Button("UnLoad")) TargetObject.UnloadScene(selectedSceneToUnload, null, null);
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                EditorGUI.BeginDisabledGroup(true);
+
+                {
+                    PaintProperty("LoadedScenes", true);
+                }
+
+                EditorGUI.EndDisabledGroup();
             }
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);

@@ -34,6 +34,11 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
             new SerializableDictionary<string, string>();
 
         /// <summary>
+        /// List of all the currently loaded scenes.
+        /// </summary>
+        public List<string> LoadedScenes = new List<string>();
+
+        /// <summary>
         /// Array of all the scenes, both in build and addressable.
         /// </summary>
         public string[] SceneNames => SceneNamesList.ToArray();
@@ -64,6 +69,15 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         public IAddressableManager AddressableManager;
 
         /// <summary>
+        /// Reset old references.
+        /// </summary>
+        public void Reset()
+        {
+            LoadedScenes.Clear();
+            LoadedScenes.Add(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
+
+        /// <summary>
         /// Load a scene by its reference.
         /// </summary>
         /// <param name="sceneReference">Reference of the scene to load.</param>
@@ -86,8 +100,17 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         public void LoadScene(string sceneName,
                               Action<float> progressCallback,
                               Action<bool> callback,
-                              LoadSceneMode mode = LoadSceneMode.Additive) =>
+                              LoadSceneMode mode = LoadSceneMode.Additive)
+        {
+            if (LoadedScenes.Contains(sceneName))
+            {
+                Logger.Error("Scene " + sceneName + " is already loaded!");
+                callback?.Invoke(false);
+                return;
+            }
+
             CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneName, mode, progressCallback, callback));
+        }
 
         /// <summary>
         /// Load a scene by its name.
@@ -122,9 +145,11 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
                                              GetSceneNameFromGuid(scene.RuntimeKey.ToString()),
                                              mode,
                                              progressCallback,
-                                             callback);
-
-                // TODO: Keep track of loaded scenes.
+                                             (success =>
+                                              {
+                                                  if (success) LoadedScenes.Add(sceneName);
+                                                  callback?.Invoke(success);
+                                              }));
             }
             else
             {
@@ -137,12 +162,78 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
                     yield return new WaitForEndOfFrame();
                 }
 
-                // TODO: Keep track of loaded scenes.
+                LoadedScenes.Add(sceneName);
 
                 Logger.Info("Scene " + sceneName + " loaded.");
 
                 callback?.Invoke(true);
             }
+        }
+
+        /// <summary>
+        /// Unload a scene by its reference.
+        /// </summary>
+        /// <param name="sceneReference">Reference of the scene to unload.</param>
+        /// <param name="progressCallback">Called to update on the progress of unloading.</param>
+        /// <param name="callback">Callback called when the scene is unloaded.</param>
+        public void UnloadScene(SceneReference sceneReference,
+                                Action<float> progressCallback,
+                                Action<bool> callback) =>
+            UnloadScene(sceneReference.SceneName, progressCallback, callback);
+
+        /// <summary>
+        /// Unload a scene by its name.
+        /// </summary>
+        /// <param name="sceneName">Name of the scene to unload.</param>
+        /// <param name="progressCallback">Called to update on the progress of unloading.</param>
+        /// <param name="callback">Callback called when the scene is unloaded.</param>
+        public void UnloadScene(string sceneName,
+                                Action<float> progressCallback,
+                                Action<bool> callback)
+        {
+            if (!LoadedScenes.Contains(sceneName))
+            {
+                Logger.Error("Scene " + sceneName + " is not loaded!");
+                callback?.Invoke(false);
+                return;
+            }
+
+            if (LoadedScenes.Count <= 1)
+            {
+                Logger.Error("The last loaded scene can't be unloaded!");
+                callback?.Invoke(false);
+                return;
+            }
+
+            CoroutineRunner.Instance.RunRoutine(UnloadSceneRoutine(sceneName, progressCallback, callback));
+        }
+
+        /// <summary>
+        /// Unload a scene by its name.
+        /// </summary>
+        /// <param name="sceneName">Name of the scene to unload.</param>
+        /// <param name="progressCallback">Called to update on the progress of unloading.</param>
+        /// <param name="callback">Callback called when the scene is unloaded.</param>
+        private IEnumerator UnloadSceneRoutine(string sceneName,
+                                               Action<float> progressCallback,
+                                               Action<bool> callback)
+        {
+            Logger.Info("Attempting to unload scene " + sceneName + ".");
+
+            AsyncOperation operation = UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneName);
+
+            while (!operation.isDone)
+            {
+                GetLogger().Info("Unloading scene - " + operation.progress);
+                progressCallback?.Invoke(operation.progress);
+                yield return new WaitForEndOfFrame();
+            }
+
+            LoadedScenes.Remove(sceneName);
+
+            Logger.Info("Unloaded scene " + sceneName + ".");
+
+            callback?.Invoke(true);
         }
 
         /// <summary>
