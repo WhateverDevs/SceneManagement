@@ -65,6 +65,19 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         public IAddressableManager AddressableManager;
 
         /// <summary>
+        /// Load a scene by its reference.
+        /// </summary>
+        /// <param name="sceneReference">Reference of the scene to load.</param>
+        /// <param name="progressCallback">Called to update on the progress of loading.</param>
+        /// <param name="callback">Callback called when the scene is loaded.</param>
+        /// <param name="mode">Loading mode.</param>
+        public void LoadScene(SceneReference sceneReference,
+                              Action<float> progressCallback,
+                              Action<bool> callback,
+                              LoadSceneMode mode = LoadSceneMode.Additive) =>
+            LoadScene(sceneReference.SceneName, progressCallback, callback, mode);
+
+        /// <summary>
         /// Load a scene by its name.
         /// </summary>
         /// <param name="sceneName">Name of the scene to load.</param>
