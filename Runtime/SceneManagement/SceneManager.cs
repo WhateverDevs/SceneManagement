@@ -15,7 +15,6 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
     /// <summary>
     /// Class that stores the scene references and loads them on runtime.
     /// </summary>
-    [CreateAssetMenu(menuName = "WhateverDevs/SceneManagement/SceneManager", fileName = "SceneManager")]
     public class SceneManager : LoggableScriptableObject<SceneManager>
     {
         /// <summary>

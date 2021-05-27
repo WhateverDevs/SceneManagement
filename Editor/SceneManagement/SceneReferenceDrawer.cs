@@ -11,17 +11,27 @@ namespace Editor.SceneManagement
     // ReSharper disable once UnusedType.Global
     public class SceneReferenceDrawer : OdinValueDrawer<SceneReference>
     {
+        /// <summary>
+        /// Paint the property.
+        /// </summary>
+        /// <param name="label"></param>
         protected override void DrawPropertyLayout(GUIContent label)
         {
             SceneReference reference = ValueEntry.SmartValue;
 
             if (reference.Library == null)
+            {
                 reference.Library =
-                    (SceneManager) EditorGUILayout.ObjectField(new GUIContent("Scene manager",
-                                                                              "A reference to the scene manager is needed."),
-                                                               reference.Library,
-                                                               typeof(SceneManager),
-                                                               false);
+                    AssetDatabase.LoadAssetAtPath<SceneManager>(SceneManagerCreator.SceneManagerPath);
+
+                if (reference.Library == null)
+                    reference.Library =
+                        (SceneManager) EditorGUILayout.ObjectField(new GUIContent("Scene manager",
+                                                                       "A reference to the scene manager is needed."),
+                                                                   reference.Library,
+                                                                   typeof(SceneManager),
+                                                                   false);
+            }
             else if (reference.Library.SceneNamesList.Count == 0)
                 EditorGUILayout.HelpBox("There are no scenes in the library.", MessageType.Error);
             else
