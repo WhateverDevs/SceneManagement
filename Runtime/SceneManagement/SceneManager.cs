@@ -237,6 +237,28 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         }
 
         /// <summary>
+        /// Set a scene as the active scene.
+        /// </summary>
+        /// <param name="scene">Scene to set active.</param>
+        public void SetActiveScene(SceneReference scene) => SetActiveScene(scene.SceneName);
+
+        /// <summary>
+        /// Set a scene as the active scene.
+        /// </summary>
+        /// <param name="sceneName">Scene to set active.</param>
+        public void SetActiveScene(string sceneName)
+        {
+            if (!LoadedScenes.Contains(sceneName))
+            {
+                Logger.Error("Scene " + sceneName + " is not loaded!");
+                return;
+            }
+
+            UnityEngine.SceneManagement.SceneManager.SetActiveScene(UnityEngine.SceneManagement.SceneManager
+                                                                       .GetSceneByName(sceneName));
+        }
+
+        /// <summary>
         /// Get the index of a non addressable scene by its name.
         /// </summary>
         /// <param name="sceneName"></param>
