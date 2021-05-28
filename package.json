@@ -2,14 +2,15 @@
   "name": "whateverdevs.scenemanagement",
   "version": "0.0.1",
   "dependencies": {
-    "whateverdevs.core": "0.0.59",
+    "whateverdevs.core": "0.0.69",
     "com.unity.addressables": "1.16.19"
   },
   "displayName": "Scene Management",
   "description": "Whateverdevs' scene management.",
-  "unity": "2020.1",
+  "unity": "2020.3",
   "author": {
     "name": "Whatever Devs",
     "url": "https://discord.gg/B8aaMzJ"
-  }
+  },
+  "unityRelease": "10f1"
 }
