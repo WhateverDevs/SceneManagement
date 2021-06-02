@@ -97,6 +97,8 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                 }
 
                 AddressableAssetSettings.BuildPlayerContent();
+                
+                TargetObject.Logger.Info("Finished addressables build.");
             }
             finally
             {

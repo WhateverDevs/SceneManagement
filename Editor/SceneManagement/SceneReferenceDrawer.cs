@@ -12,6 +12,11 @@ namespace Editor.SceneManagement
     public class SceneReferenceDrawer : OdinValueDrawer<SceneReference>
     {
         /// <summary>
+        /// Reference to the scene manager.
+        /// </summary>
+        private SceneManager library;
+
+        /// <summary>
         /// Paint the property.
         /// </summary>
         /// <param name="label"></param>
@@ -19,31 +24,31 @@ namespace Editor.SceneManagement
         {
             SceneReference reference = ValueEntry.SmartValue;
 
-            if (reference.Library == null)
+            if (library == null)
             {
-                reference.Library =
+                library =
                     AssetDatabase.LoadAssetAtPath<SceneManager>(SceneManagerCreator.SceneManagerPath);
 
-                if (reference.Library == null)
-                    reference.Library =
+                if (library == null)
+                    library =
                         (SceneManager) EditorGUILayout.ObjectField(new GUIContent("Scene manager",
                                                                        "A reference to the scene manager is needed."),
-                                                                   reference.Library,
+                                                                   library,
                                                                    typeof(SceneManager),
                                                                    false);
             }
-            else if (reference.Library.SceneNamesList.Count == 0)
+            else if (library.SceneNamesList.Count == 0)
                 EditorGUILayout.HelpBox("There are no scenes in the library.", MessageType.Error);
             else
             {
-                if (!reference.Library.SceneNamesList.Contains(reference.SceneName))
-                    reference.SceneName = reference.Library.SceneNamesList[0];
+                if (!library.SceneNamesList.Contains(reference.SceneName))
+                    reference.SceneName = library.SceneNamesList[0];
 
                 reference.SceneName =
-                    reference.Library.SceneNames
+                    library.SceneNames
                         [EditorGUILayout.Popup(label,
-                                               reference.Library.SceneNamesList.IndexOf(reference.SceneName),
-                                               reference.Library.SceneNames)];
+                                               library.SceneNamesList.IndexOf(reference.SceneName),
+                                               library.SceneNames)];
             }
 
             ValueEntry.SmartValue = reference;

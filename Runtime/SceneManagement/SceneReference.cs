@@ -12,10 +12,5 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         /// Name of the scene.
         /// </summary>
         public string SceneName;
-
-        /// <summary>
-        /// We need a reference to the library.
-        /// </summary>
-        public SceneManager Library;
     }
 }
