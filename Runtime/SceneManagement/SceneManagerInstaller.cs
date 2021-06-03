@@ -23,7 +23,7 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
             
             Container.QueueForInject(SceneManager);
 
-            Container.Bind<SceneManager>().FromInstance(SceneManager).AsSingle().Lazy();
+            Container.Bind<ISceneManager>().FromInstance(SceneManager).AsSingle().Lazy();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
     /// <summary>
     /// Class that stores the scene references and loads them on runtime.
     /// </summary>
-    public class SceneManager : LoggableScriptableObject<SceneManager>
+    public class SceneManager : LoggableScriptableObject<SceneManager>, ISceneManager
     {
         /// <summary>
         /// List of non addressable scenes that go into the build.
@@ -36,7 +36,18 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         /// <summary>
         /// List of all the currently loaded scenes.
         /// </summary>
-        public List<string> LoadedScenes = new List<string>();
+        public List<string> LoadedScenes
+        {
+            get => loadedScenes;
+            set => loadedScenes = value;
+        }
+
+        /// <summary>
+        /// Backfield for LoadedScenes.
+        /// </summary>
+        [SerializeField]
+        // ReSharper disable once InconsistentNaming
+        private List<string> loadedScenes = new List<string>();
 
         /// <summary>
         /// Array of all the scenes, both in build and addressable.
@@ -75,6 +86,27 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         {
             LoadedScenes.Clear();
             LoadedScenes.Add(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
+
+        /// <summary>
+        /// Check if a scene is available to be loaded or its asset is missing.
+        /// </summary>
+        /// <param name="scene">Scene to check.</param>
+        /// <returns>True if it is available.</returns>
+        public bool IsSceneAvailable(SceneReference scene) => IsSceneAvailable(scene.SceneName);
+
+        /// <summary>
+        /// Check if a scene is available to be loaded or its asset is missing.
+        /// </summary>
+        /// <param name="scene">Scene to check.</param>
+        /// <returns>True if it is available.</returns>
+        public bool IsSceneAvailable(string scene)
+        {
+            if (GetSceneIndex(scene) >= 0) return true;
+
+            AssetReference sceneAddressable = GetSceneAddressable(scene);
+
+            return sceneAddressable != null && AddressableManager.IsSceneAvailable(sceneAddressable);
         }
 
         /// <summary>

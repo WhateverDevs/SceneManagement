@@ -89,7 +89,7 @@ namespace Editor.SceneManagement
                 EditorGUI.BeginDisabledGroup(true);
 
                 {
-                    PaintProperty("LoadedScenes", true);
+                    PaintProperty("loadedScenes", true);
                 }
 
                 EditorGUI.EndDisabledGroup();

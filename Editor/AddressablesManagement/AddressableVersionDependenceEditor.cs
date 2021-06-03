@@ -11,13 +11,25 @@ using WhateverDevs.SceneManagement.Runtime.AddressableManagement;
 
 namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 {
+    /// <summary>
+    /// Custom editor for the dependence library.
+    /// </summary>
     [CustomEditor(typeof(AddressableVersionDependence))]
     public class AddressableVersionDependenceEditor : ScriptableExtendedEditor<AddressableVersionDependence>
     {
+        /// <summary>
+        /// Reference to the addressable asset settings.
+        /// </summary>
         private AddressableAssetSettings addressableAssetSettings;
 
+        /// <summary>
+        /// Toggle to view some settings.
+        /// </summary>
         private bool showSettings;
 
+        /// <summary>
+        /// Paint the ui.
+        /// </summary>
         // ReSharper disable once CyclomaticComplexity
         protected override void PaintUi()
         {

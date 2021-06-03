@@ -7,24 +7,42 @@ using Version = WhateverDevs.Core.Runtime.Build.Version;
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 {
+    /// <summary>
+    /// Data class to hold the information about an addressable group.
+    /// </summary>
     public class AddressableManifest : LoggableScriptableObject<AddressableManifest>
     {
+        /// <summary>
+        /// Basic manifest version.
+        /// </summary>
         [FoldoutGroup("Manifest Version")]
         public string Version;
 
+        /// <summary>
+        /// Full manifest version.
+        /// </summary>
         [FoldoutGroup("Manifest Version")]
         [InfoBox("The full version gets updated automatically when building.")]
         [ReadOnly]
         public string FullVersion;
 
+        /// <summary>
+        /// Update the full manifest version.
+        /// </summary>
         [FoldoutGroup("Manifest Version")]
         [Button]
         public void UpdateFullVersion() => FullVersion = Version + "." + CurrentDate;
 
+        /// <summary>
+        /// Reference to the app version.
+        /// </summary>
         [FoldoutGroup("App Version")]
         [ShowIf("@AppVersionReference == null")]
         public Version AppVersionReference;
 
+        /// <summary>
+        /// Minimum app version the manifest requires.
+        /// </summary>
         [FoldoutGroup("App Version")]
         [ShowIf("@AppVersionReference != null")]
         [ReadOnly]
@@ -35,6 +53,9 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// </summary>
         private static string CurrentDate => DateTime.Now.ToString("yyyyMMddhhmmss");
 
+        /// <summary>
+        /// Update the minimum app version to the current app version.
+        /// </summary>
         [FoldoutGroup("App Version")]
         [ShowIf("@AppVersionReference != null")]
         [Button]

@@ -14,26 +14,62 @@ using Version = WhateverDevs.Core.Runtime.Build.Version;
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 {
+    /// <summary>
+    /// Class that handles addressable availability checking, loading and unloading.
+    /// </summary>
     [CreateAssetMenu(menuName = "WhateverDevs/SceneManagement/AddressableManager", fileName = "AddressableManager")]
     public class AddressableManager : LoggableScriptableObject<AddressableManager>, IAddressableManager
     {
+        /// <summary>
+        /// Reference to the version dependence library.
+        /// </summary>
         public AddressableVersionDependence AddressableVersionDependence;
 
+        /// <summary>
+        /// Report generated when checking availability of addressables.
+        /// </summary>
         [ShowInInspector]
         [ReadOnly]
         private AddressableStateReport addressableStateReport;
 
+        /// <summary>
+        /// List of all manifests found when checking available addressables.
+        /// </summary>
         [ShowInInspector]
         [ReadOnly]
         private List<AddressableManifest> manifests = new List<AddressableManifest>();
 
-        [Inject]
+        /// <summary>
+        /// Reference to the app version.
+        /// </summary>
         [HideInInspector]
         public Version Version;
 
-        [Button]
-        public void Reset() => addressableStateReport = null;
+        /// <summary>
+        /// Called when injection occurs.
+        /// </summary>
+        /// <param name="version"></param>
+        [Inject]
+        public void Constructor(Version version)
+        {
+            CheckAvailableAddressables(null);
+            Version = version;
+        }
 
+        /// <summary>
+        /// Reset the manager.
+        /// </summary>
+        [Button]
+        public void Reset()
+        {
+            addressableStateReport = null;
+            manifests.Clear();
+        }
+
+        /// <summary>
+        /// Triggers checking for available addressables.
+        /// </summary>
+        /// <param name="callback"></param>
         [Button]
         [EnableIf("@UnityEngine.Application.isPlaying")]
         public void CheckAvailableAddressables(Action<AddressableStateReport> callback)
@@ -46,9 +82,14 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 callback?.Invoke(addressableStateReport);
         }
 
+        /// <summary>
+        /// Routine to asynchronously check available addressables.
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <returns></returns>
         private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback)
         {
-            addressableStateReport = new AddressableStateReport();
+            AddressableStateReport newReport = new AddressableStateReport();
 
             AsyncOperationHandle<IList<IResourceLocation>> manifestsHandle =
                 Addressables.LoadResourceLocationsAsync("Manifest");
@@ -72,7 +113,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 {
                     Logger.Error(location.PrimaryKey + " manifest is missing!");
 
-                    addressableStateReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
+                    newReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
                         AddressableVersionState.Missing;
                 }
                 else
@@ -96,7 +137,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                                   + requiredVersion
                                   + ").");
 
-                        addressableStateReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
+                        newReport.AddressableStates[LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
                             AddressableVersionState.AddressableVersionLowerThanAppRequires;
                     }
                     else
@@ -114,16 +155,19 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                                       + manifest.MinimumAppVersion
                                       + ").");
 
-                            addressableStateReport.AddressableStates
+                            newReport.AddressableStates
                                     [LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
                                 AddressableVersionState.AppVersionLowerThanAddressableRequires;
                         }
                         else
                         {
+                            // TODO: Check dependencies between bundles. I'm not sure if this can be done in runtime.
+                            // TODO: Perhaps precached when building?
+                            
                             Logger.Info(manifest.name + " version is compatible with the app.");
                             Logger.Info("App version is compatible with " + manifest.name + ".");
 
-                            addressableStateReport.AddressableStates
+                            newReport.AddressableStates
                                     [LocationPrimaryKeyToGroupName(location.PrimaryKey)] =
                                 AddressableVersionState.Correct;
                         }
@@ -133,11 +177,33 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
             Addressables.Release(manifestsHandle);
 
+            addressableStateReport = newReport;
+
             Logger.Info("Cached addressables manifest state.");
 
             callback?.Invoke(addressableStateReport);
         }
 
+        /// <summary>
+        /// Check if a scene is in a valid manifest and ready to be loaded.
+        /// </summary>
+        /// <param name="scene">Scene to check.</param>
+        /// <returns>True if available.</returns>
+        public bool IsSceneAvailable(AssetReference scene)
+        {
+            if (addressableStateReport != null) return IsAssetInAValidManifest(scene);
+            Logger.Error("Addressables have not been scanned yet!");
+            return false;
+        }
+
+        /// <summary>
+        /// Load the given scene by its asset reference.
+        /// </summary>
+        /// <param name="sceneReference">Scene to load.</param>
+        /// <param name="sceneName">Scene name, only used for logs, can be null as long as the reference is okay.</param>
+        /// <param name="loadMode">Mode to load the scene into.</param>
+        /// <param name="progressCallback">Callback that reports the loading progress every frame.</param>
+        /// <param name="sceneLoadedCallback">Callback called when the scene is loaded or when there has been an error.</param>
         public void LoadScene(AssetReference sceneReference,
                               string sceneName,
                               LoadSceneMode loadMode,
@@ -164,6 +230,14 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             }
         }
 
+        /// <summary>
+        /// Load the given scene by its asset reference.
+        /// </summary>
+        /// <param name="sceneReference">Scene to load.</param>
+        /// <param name="sceneName">Scene name, only used for logs, can be null as long as the reference is okay.</param>
+        /// <param name="loadMode">Mode to load the scene into.</param>
+        /// <param name="progressCallback">Callback that reports the loading progress every frame.</param>
+        /// <param name="sceneLoadedCallback">Callback called when the scene is loaded or when there has been an error.</param>
         private IEnumerator LoadSceneRoutine(AssetReference sceneReference,
                                              string sceneName,
                                              LoadSceneMode loadMode,
@@ -195,9 +269,19 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             sceneLoadedCallback?.Invoke(true);
         }
 
+        /// <summary>
+        /// Translate the primary key of an asset to its group name.
+        /// </summary>
+        /// <param name="primaryKey"></param>
+        /// <returns></returns>
         private static string LocationPrimaryKeyToGroupName(string primaryKey) => primaryKey.Split('/')[1];
 
-        private bool IsAssetInAValidManifest(AssetReference asset)
+        /// <summary>
+        /// Check if an asset is in a valid manifest.
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
+        private bool IsAssetInAValidManifest(IKeyEvaluator asset)
         {
             for (int i = 0; i < manifests.Count; ++i)
                 if (manifests[i].AssetGuids.Contains(asset.RuntimeKey.ToString()))

@@ -9,13 +9,27 @@ using WhateverDevs.SceneManagement.Runtime.AddressableManagement;
 
 namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 {
+    /// <summary>
+    /// Custom editor for the addressable builder.
+    /// This is were the building code is.
+    /// TODO: Change the building code to a static class.
+    /// </summary>
     [CustomEditor(typeof(AddressablesBuilder))]
     public class AddressablesBuilderEditor : ScriptableExtendedEditor<AddressablesBuilder>
     {
+        /// <summary>
+        /// Reference to the addressable asset settings.
+        /// </summary>
         private AddressableAssetSettings addressableAssetSettings;
 
+        /// <summary>
+        /// Title for the progress bar.
+        /// </summary>
         private const string ProgressBarTitle = "Building addressables";
 
+        /// <summary>
+        /// Paint the ui.
+        /// </summary>
         protected override void PaintUi()
         {
             if (TargetObject.VersionDependence == null)
@@ -45,6 +59,9 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
             if (GUILayout.Button("Build")) Build();
         }
 
+        /// <summary>
+        /// Build the addressables.
+        /// </summary>
         private void Build()
         {
             try

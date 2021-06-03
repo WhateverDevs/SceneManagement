@@ -7,12 +7,23 @@ using UnityEditor;
 
 namespace WhateverDevs.SceneManagement.Runtime.BuildHooks
 {
+    /// <summary>
+    /// Hook to warn the dev about building addressables before building the app.
+    /// </summary>
     [CreateAssetMenu(menuName = "WhateverDevs/SceneManagement/BuildHooks/WarnAboutBuildBundlesBeforeBuild",
                      fileName = "WarnAboutBuildBundlesBeforeBuild")]
     public class WarnAboutBuildBundlesBeforeBuild : BuildProcessorHook
     {
+        /// <summary>
+        /// Toggle not reminding again.
+        /// </summary>
         public bool DontRemindAgain;
 
+        /// <summary>
+        /// Run the hook.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public override bool RunHook(string path)
         {
             #if UNITY_EDITOR
