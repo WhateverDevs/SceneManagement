@@ -10,6 +10,7 @@ using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using WhateverDevs.Core.Runtime.Common;
 using Zenject;
+using Object = UnityEngine.Object;
 using Version = WhateverDevs.Core.Runtime.Build.Version;
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
@@ -163,7 +164,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                         {
                             // TODO: Check dependencies between bundles. I'm not sure if this can be done in runtime.
                             // TODO: Perhaps precached when building?
-                            
+
                             Logger.Info(manifest.name + " version is compatible with the app.");
                             Logger.Info("App version is compatible with " + manifest.name + ".");
 
@@ -267,6 +268,69 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             Logger.Info("Scene " + sceneName + " loaded.");
 
             sceneLoadedCallback?.Invoke(true);
+        }
+
+        /// <summary>
+        /// Load the given asset by its reference.
+        /// </summary>
+        /// <param name="assetReference">Reference to the asset to load.</param>
+        /// <param name="loadedCallback">Callback raised when the asset is loaded, the bool represents success.</param>
+        /// <typeparam name="T">Type of asset to load.</typeparam>
+        public void LoadAsset<T>(AssetReference assetReference, Action<bool, T> loadedCallback) where T : Object
+        {
+            if (assetReference == null)
+            {
+                Logger.Error("Given asset reference is null!");
+                loadedCallback?.Invoke(false, null);
+                return;
+            }
+
+            if (IsAssetInAValidManifest(assetReference))
+                CoroutineRunner.Instance.RunRoutine(LoadAssetRoutine(assetReference, loadedCallback));
+            else
+            {
+                Logger.Error("Given asset reference does not have a valid manifest!");
+                loadedCallback?.Invoke(false, null);
+            }
+        }
+
+        /// <summary>
+        /// Load the given asset by its reference.
+        /// </summary>
+        /// <param name="assetReference">Reference to the asset to load.</param>
+        /// <param name="loadedCallback">Callback raised when the asset is loaded, the bool represents success.</param>
+        /// <typeparam name="T">Type of asset to load.</typeparam>
+        private IEnumerator LoadAssetRoutine<T>(IKeyEvaluator assetReference, Action<bool, T> loadedCallback)
+            where T : Object
+        {
+            AsyncOperationHandle<T> operationHandle = default;
+            bool success = true;
+
+            try
+            {
+                operationHandle = Addressables.LoadAssetAsync<T>(assetReference);
+            }
+            catch (Exception e)
+            {
+                Logger.Fatal(e.Message + "\n" + e.StackTrace);
+                loadedCallback?.Invoke(false, null);
+                success = false;
+            }
+
+            yield return new WaitUntil(() => operationHandle.IsDone);
+
+            if (operationHandle.Status == AsyncOperationStatus.Failed)
+            {
+                Logger.Fatal("Error retrieving the asset.");
+                loadedCallback?.Invoke(false, null);
+                success = false;
+            }
+
+            if (!success) yield break;
+
+            Logger.Info("Loaded asset " + assetReference.RuntimeKey + ".");
+
+            loadedCallback?.Invoke(true, operationHandle.Result);
         }
 
         /// <summary>

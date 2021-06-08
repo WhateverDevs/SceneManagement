@@ -1,6 +1,7 @@
 using System;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 {
@@ -19,7 +20,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// </summary>
         /// <param name="callback"></param>
         void CheckAvailableAddressables(Action<AddressableStateReport> callback);
-        
+
         /// <summary>
         /// Check if a scene is in a valid manifest and ready to be loaded.
         /// </summary>
@@ -40,5 +41,13 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                        LoadSceneMode loadMode,
                        Action<float> progressCallback,
                        Action<bool> sceneLoadedCallback);
+
+        /// <summary>
+        /// Load the given asset by its reference.
+        /// </summary>
+        /// <param name="assetReference">Reference to the asset to load.</param>
+        /// <param name="loadedCallback">Callback raised when the asset is loaded, the bool represents success.</param>
+        /// <typeparam name="T">Type of asset to load.</typeparam>
+        void LoadAsset<T>(AssetReference assetReference, Action<bool, T> loadedCallback) where T : Object;
     }
 }
