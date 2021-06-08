@@ -303,6 +303,31 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         }
 
         /// <summary>
+        /// Move the given game object to the active scene.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        public void MoveObjectToActiveScene(GameObject gameObject) =>
+            MoveObjectToScene(gameObject, GetActiveSceneName());
+
+        /// <summary>
+        /// Move the given game object to the given scene.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="scene"></param>
+        public void MoveObjectToScene(GameObject gameObject, SceneReference scene) =>
+            MoveObjectToScene(gameObject, scene.SceneName);
+
+        /// <summary>
+        /// Move the given game object to the given scene.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="scene"></param>
+        public void MoveObjectToScene(GameObject gameObject, string scene) =>
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(gameObject,
+                                                                           UnityEngine.SceneManagement.SceneManager
+                                                                              .GetSceneByName(scene));
+
+        /// <summary>
         /// Get the index of a non addressable scene by its name.
         /// </summary>
         /// <param name="sceneName"></param>

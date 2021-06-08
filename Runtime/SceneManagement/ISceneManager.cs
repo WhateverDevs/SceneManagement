@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
@@ -100,5 +101,25 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         /// </summary>
         /// <param name="sceneName">Scene to set active.</param>
         void SetActiveScene(string sceneName);
+
+        /// <summary>
+        /// Move the given game object to the active scene.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        void MoveObjectToActiveScene(GameObject gameObject);
+        
+        /// <summary>
+        /// Move the given game object to the given scene.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="scene"></param>
+        void MoveObjectToScene(GameObject gameObject, SceneReference scene);
+
+        /// <summary>
+        /// Move the given game object to the given scene.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="scene"></param>
+        void MoveObjectToScene(GameObject gameObject, string scene);
     }
 }
