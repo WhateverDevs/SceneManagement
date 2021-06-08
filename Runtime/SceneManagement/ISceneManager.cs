@@ -76,6 +76,18 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         void UnloadScene(string sceneName,
                          Action<float> progressCallback,
                          Action<bool> callback);
+        
+        /// <summary>
+        /// Get the active scene.
+        /// </summary>
+        /// <returns></returns>
+        Scene GetActiveScene();
+
+        /// <summary>
+        /// Get the name of the active scene.
+        /// </summary>
+        /// <returns></returns>
+        string GetActiveSceneName();
 
         /// <summary>
         /// Set a scene as the active scene.

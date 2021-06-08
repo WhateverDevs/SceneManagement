@@ -269,6 +269,18 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
         }
 
         /// <summary>
+        /// Get the active scene.
+        /// </summary>
+        /// <returns></returns>
+        public Scene GetActiveScene() => UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+
+        /// <summary>
+        /// Get the name of the active scene.
+        /// </summary>
+        /// <returns></returns>
+        public string GetActiveSceneName() => GetActiveScene().name;
+
+        /// <summary>
         /// Set a scene as the active scene.
         /// </summary>
         /// <param name="scene">Scene to set active.</param>
