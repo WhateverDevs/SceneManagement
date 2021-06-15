@@ -194,6 +194,8 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
                     yield return new WaitForEndOfFrame();
                 }
 
+                if (mode == LoadSceneMode.Single) LoadedScenes.Clear();
+
                 LoadedScenes.Add(sceneName);
 
                 Logger.Info("Scene " + sceneName + " loaded.");
