@@ -27,7 +27,7 @@ namespace WhateverDevs.SceneManagement.Runtime.Ui
         /// </summary>
         [Inject]
         [HideInInspector]
-        public SceneManager SceneManager;
+        public ISceneManager SceneManager;
 
         /// <summary>
         /// Load the scene when the button is clicked.
