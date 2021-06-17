@@ -51,7 +51,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Current date in string version format.
         /// </summary>
-        private static string CurrentDate => DateTime.Now.ToString("yyyyMMddhhmmss");
+        private static string CurrentDate => DateTime.Now.ToString("yyyyMMddHHmmss");
 
         /// <summary>
         /// Update the minimum app version to the current app version.
