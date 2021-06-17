@@ -121,7 +121,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 {
                     Logger.Info(location.PrimaryKey + " manifest found.");
 
-                    manifests.Add(manifest);
+                    if (!manifests.Contains(manifest)) manifests.Add(manifest);
 
                     string requiredVersion = AddressableVersionDependence.Dependencies[AddressableVersionDependence
                        .GetManifestByName(manifest.name)];
