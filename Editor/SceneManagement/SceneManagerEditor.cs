@@ -18,7 +18,7 @@ namespace Editor.SceneManagement
         /// <summary>
         /// List that saves the scene assets.
         /// </summary>
-        private List<SceneAsset> sceneList = new List<SceneAsset>();
+        private readonly List<SceneAsset> sceneList = new List<SceneAsset>();
 
         /// <summary>
         /// Reorderable list to display the scene list.

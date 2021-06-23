@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace Editor.SceneManagement
     /// <summary>
     /// Custom drawer for scene references.
     /// </summary>
-    // ReSharper disable once UnusedType.Global
+    [UsedImplicitly]
     public class SceneReferenceDrawer : OdinValueDrawer<SceneReference>
     {
         /// <summary>
