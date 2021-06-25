@@ -1,6 +1,6 @@
 {
   "name": "whateverdevs.scenemanagement",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "dependencies": {
     "whateverdevs.core": "0.0.69",
     "com.unity.addressables": "1.16.19"
