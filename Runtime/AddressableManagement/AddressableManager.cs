@@ -190,7 +190,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// </summary>
         /// <param name="scene">Scene to check.</param>
         /// <returns>True if available.</returns>
-        public bool IsSceneAvailable(AssetReference scene)
+        public bool IsAssetAvailable(AssetReference scene)
         {
             if (addressableStateReport != null) return IsAssetInAValidManifest(scene);
             Logger.Error("Addressables have not been scanned yet!");

@@ -106,7 +106,7 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
 
             AssetReference sceneAddressable = GetSceneAddressable(scene);
 
-            return sceneAddressable != null && AddressableManager.IsSceneAvailable(sceneAddressable);
+            return sceneAddressable != null && AddressableManager.IsAssetAvailable(sceneAddressable);
         }
 
         /// <summary>

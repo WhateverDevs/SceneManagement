@@ -22,11 +22,11 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         void CheckAvailableAddressables(Action<AddressableStateReport> callback);
 
         /// <summary>
-        /// Check if a scene is in a valid manifest and ready to be loaded.
+        /// Check if an asset is in a valid manifest and ready to be loaded.
         /// </summary>
-        /// <param name="scene">Scene to check.</param>
+        /// <param name="asset">Asset to check.</param>
         /// <returns>True if available.</returns>
-        public bool IsSceneAvailable(AssetReference scene);
+        public bool IsAssetAvailable(AssetReference asset);
 
         /// <summary>
         /// Load the given scene by its asset reference.
