@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Sirenix.Utilities;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using Varguiniano.ExtendedEditor.Editor;
+using WhateverDevs.Core.Runtime.Common;
 using WhateverDevs.SceneManagement.Runtime.AddressableManagement;
 
 namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
@@ -17,6 +19,11 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
     [CustomEditor(typeof(AddressablesBuilder))]
     public class AddressablesBuilderEditor : ScriptableExtendedEditor<AddressablesBuilder>
     {
+        /// <summary>
+        /// Show the settings?
+        /// </summary>
+        private bool showSettings;
+
         /// <summary>
         /// Reference to the addressable asset settings.
         /// </summary>
@@ -52,11 +59,26 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                 return;
             }
 
+            if (GUILayout.Button("Build")) Build();
+
+            showSettings = EditorGUILayout.Foldout(showSettings, "Configuration");
+
+            if (showSettings) Settings();
+        }
+
+        /// <summary>
+        /// Settings ui.
+        /// </summary>
+        /// <returns></returns>
+        private void Settings()
+        {
             EditorGUILayout
                .HelpBox("Remember that the build location can't be changed by this tool. You have to set it on the group schemata.",
                         MessageType.Info);
+            
+            PaintProperty("DeleteFolderBeforeBuild");
 
-            if (GUILayout.Button("Build")) Build();
+            if (TargetObject.DeleteFolderBeforeBuild) PaintProperty("BuildFolder");
         }
 
         /// <summary>
@@ -66,6 +88,13 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
         {
             try
             {
+                if (TargetObject.DeleteFolderBeforeBuild && !TargetObject.BuildFolder.IsNullEmptyOrWhiteSpace())
+                {
+                    EditorUtility.DisplayProgressBar(ProgressBarTitle, "Deleting previous addressable build...", .10f);
+                    
+                    if(Directory.Exists(TargetObject.BuildFolder)) Utils.DeleteDirectory(TargetObject.BuildFolder);
+                }
+                
                 EditorUtility.DisplayProgressBar(ProgressBarTitle, "Creating tags for groups...", .33f);
 
                 List<AddressableAssetGroup> groups = addressableAssetSettings.groups;

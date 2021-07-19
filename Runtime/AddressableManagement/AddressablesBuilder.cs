@@ -14,5 +14,15 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// Reference to the version dependence scriptable.
         /// </summary>
         public AddressableVersionDependence VersionDependence;
+        
+        /// <summary>
+        /// Delete the bundles folder before build?
+        /// </summary>
+        public bool DeleteFolderBeforeBuild;
+
+        /// <summary>
+        /// Path to the bundles folder.
+        /// </summary>
+        public string BuildFolder;
     }
 }
