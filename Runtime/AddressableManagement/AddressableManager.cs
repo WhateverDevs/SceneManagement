@@ -9,6 +9,7 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using WhateverDevs.Core.Runtime.Common;
+using WhateverDevs.SceneManagement.Runtime.Utils;
 using Zenject;
 using Object = UnityEngine.Object;
 using Version = WhateverDevs.Core.Runtime.Build.Version;
@@ -45,6 +46,16 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// </summary>
         [HideInInspector]
         public Version Version;
+        
+        /// <summary>
+        /// Flag to check report creation.
+        /// </summary>
+        private bool generatingReport;
+
+        /// <summary>
+        /// Waiting to report creation.
+        /// </summary>
+        private WaitUntil creationWait;
 
         /// <summary>
         /// Called when injection occurs.
@@ -53,8 +64,9 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         [Inject]
         public void Constructor(Version version)
         {
+            creationWait = new WaitUntil(() => !generatingReport);
             CheckAvailableAddressables(null);
-            Version = version;
+            Version = version; 
         }
 
         /// <summary>
@@ -90,6 +102,16 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <returns></returns>
         private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback)
         {
+            if (generatingReport)
+            {
+                // wait until creation
+                yield return creationWait;
+                callback?.Invoke(addressableStateReport);
+                yield break;
+            }
+
+            generatingReport = true;
+            
             AddressableStateReport newReport = new AddressableStateReport();
 
             AsyncOperationHandle<IList<IResourceLocation>> manifestsHandle =
@@ -125,11 +147,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
                     string requiredVersion = AddressableVersionDependence.Dependencies[AddressableVersionDependence
                        .GetManifestByName(manifest.name)];
-
-                    if (string.Compare(manifest.FullVersion,
-                                       requiredVersion,
-                                       StringComparison.Ordinal)
-                      < 0)
+                    
+                    if (Helper.CheckVersion(manifest.FullVersion,requiredVersion) > 0)
                     {
                         Logger.Warn(manifest.name
                                   + " version("
@@ -143,10 +162,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                     }
                     else
                     {
-                        if (string.Compare(Version.FullVersion,
-                                           manifest.MinimumAppVersion,
-                                           StringComparison.Ordinal)
-                          < 0)
+                        if (Helper.CheckVersion(Version.FullVersion,manifest.MinimumAppVersion) > 0)
                         {
                             Logger.Warn("App version("
                                       + Version.FullVersion
@@ -183,6 +199,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             Logger.Info("Cached addressables manifest state.");
 
             callback?.Invoke(addressableStateReport);
+
+            generatingReport = false;
         }
 
         /// <summary>
