@@ -22,9 +22,9 @@ namespace WhateverDevs.SceneManagement.Runtime.Utils
             
             for (int i = 0; i < version1.Length; ++i)
             {
-                if(Int16.Parse(splitversion1[i]) > Int16.Parse(splitversion2[i]))
+                if(long.Parse(splitversion1[i]) > long.Parse(splitversion2[i]))
                     return -1;
-                if(Int16.Parse(splitversion1[i]) > Int16.Parse(splitversion2[i]))
+                if(long.Parse(splitversion1[i]) > long.Parse(splitversion2[i]))
                     return 1;
             }
 
