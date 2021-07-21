@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 
 namespace WhateverDevs.SceneManagement.Runtime.Utils
 {
@@ -19,8 +20,18 @@ namespace WhateverDevs.SceneManagement.Runtime.Utils
             string[] splitversion2 = version2.Split('.');
 
             if (splitversion1.Length != splitversion2.Length) return -2;
+
+            if (Char.IsLetter(splitversion1[2][splitversion1[2].Length-1]) && Char.IsLetter(splitversion2[2][splitversion2[2].Length-1]))
+            {
+                if (splitversion1[2][splitversion1[2].Length-1] > splitversion2[2][splitversion2[2].Length-1]) return 1;
+                if (splitversion1[2][splitversion1[2].Length-1] < splitversion2[2][splitversion2[2].Length-1]) return -1;
+
+                splitversion1[2] = splitversion1[2].Remove(splitversion1[2].Length - 1,1);
+                splitversion2[2] = splitversion2[2].Remove(splitversion2[2].Length - 1,1);
+            }
+                
             
-            for (int i = 0; i < version1.Length; ++i)
+            for (int i = 0; i < splitversion1.Length; ++i)
             {
                 if(long.Parse(splitversion1[i]) > long.Parse(splitversion2[i]))
                     return -1;
