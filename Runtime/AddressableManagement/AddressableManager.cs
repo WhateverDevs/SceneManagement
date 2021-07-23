@@ -76,6 +76,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         public void Reset()
         {
             addressableStateReport = null;
+            generatingReport = false;
             manifests.Clear();
         }
 
