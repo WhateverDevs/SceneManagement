@@ -64,6 +64,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         [Inject]
         public void Constructor(Version version)
         {
+            AddressableVersionDependence.CleanNullDependencies();
+            
             creationWait = new WaitUntil(() => !generatingReport);
             CheckAvailableAddressables(null);
             Version = version; 

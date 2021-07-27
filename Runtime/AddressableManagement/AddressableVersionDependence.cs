@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using WhateverDevs.Core.Runtime.Build;
 using WhateverDevs.Core.Runtime.Common;
@@ -55,6 +57,22 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                     return manifest;
 
             return null;
+        }
+
+        /// <summary>
+        /// Clean the null saved dependencies, this prevents issues with deleted addressables.
+        /// </summary>
+        public void CleanNullDependencies()
+        {
+            List<int> dependenciesToRemove = new List<int>();
+
+            List<AddressableManifest> keys = Dependencies.Keys.ToList();
+
+            for (int i = 0; i < keys.Count; ++i)
+                if (keys[i] == null)
+                    dependenciesToRemove.Add(i);
+
+            for (int i = 0; i < dependenciesToRemove.Count; ++i) Dependencies.RemoveAt(dependenciesToRemove[i]);
         }
     }
 }
