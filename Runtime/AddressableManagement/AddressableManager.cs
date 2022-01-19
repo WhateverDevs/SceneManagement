@@ -39,14 +39,14 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// </summary>
         [ShowInInspector]
         [ReadOnly]
-        private List<AddressableManifest> manifests = new List<AddressableManifest>();
+        private List<AddressableManifest> manifests = new();
 
         /// <summary>
         /// Reference to the app version.
         /// </summary>
         [HideInInspector]
         public Version Version;
-        
+
         /// <summary>
         /// Flag to check report creation.
         /// </summary>
@@ -65,10 +65,10 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         public void Constructor(Version version)
         {
             AddressableVersionDependence.CleanNullDependencies();
-            
+
             creationWait = new WaitUntil(() => !generatingReport);
             CheckAvailableAddressables(null);
-            Version = version; 
+            Version = version;
         }
 
         /// <summary>
@@ -85,15 +85,17 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Triggers checking for available addressables.
         /// </summary>
-        /// <param name="callback"></param>
+        /// <param name="callback">Callback that sends the report back.</param>
+        /// <param name="progressCallback">Callback that sends back progress.</param>
         [Button]
         [EnableIf("@UnityEngine.Application.isPlaying")]
-        public void CheckAvailableAddressables(Action<AddressableStateReport> callback)
+        public void CheckAvailableAddressables(Action<AddressableStateReport> callback,
+                                               Action<float> progressCallback = null)
         {
             Logger.Info("Checking addressables...");
 
             if (addressableStateReport == null)
-                CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback));
+                CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback, progressCallback));
             else
                 callback?.Invoke(addressableStateReport);
         }
@@ -101,9 +103,11 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Routine to asynchronously check available addressables.
         /// </summary>
-        /// <param name="callback"></param>
+        /// <param name="callback">Callback that sends the report back.</param>
+        /// <param name="progressCallback">Callback that sends back progress.</param>
         /// <returns></returns>
-        private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback)
+        private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback,
+                                                              Action<float> progressCallback)
         {
             if (generatingReport)
             {
@@ -114,8 +118,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             }
 
             generatingReport = true;
-            
-            AddressableStateReport newReport = new AddressableStateReport();
+
+            AddressableStateReport newReport = new();
 
             AsyncOperationHandle<IList<IResourceLocation>> manifestsHandle =
                 Addressables.LoadResourceLocationsAsync("Manifest");
@@ -124,9 +128,12 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
             Logger.Info("Found " + manifestsHandle.Result.Count + " manifest locations.");
 
-            foreach (IResourceLocation location in manifestsHandle.Result)
+            for (int i = 0; i < manifestsHandle.Result.Count; i++)
             {
+                IResourceLocation location = manifestsHandle.Result[i];
                 Logger.Info("Checking " + location.PrimaryKey + " manifest...");
+
+                progressCallback?.Invoke((float)i / manifestsHandle.Result.Count);
 
                 AsyncOperationHandle<AddressableManifest> manifestHandle =
                     Addressables.LoadAssetAsync<AddressableManifest>(location);
@@ -150,8 +157,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 
                     string requiredVersion = AddressableVersionDependence.Dependencies[AddressableVersionDependence
                        .GetManifestByName(manifest.name)];
-                    
-                    if (Helper.CheckVersion(manifest.FullVersion,requiredVersion) > 0)
+
+                    if (Helper.CheckVersion(manifest.FullVersion, requiredVersion) > 0)
                     {
                         Logger.Warn(manifest.name
                                   + " version("
@@ -165,7 +172,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                     }
                     else
                     {
-                        if (Helper.CheckVersion(Version.FullVersion,manifest.MinimumAppVersion) > 0)
+                        if (Helper.CheckVersion(Version.FullVersion, manifest.MinimumAppVersion) > 0)
                         {
                             Logger.Warn("App version("
                                       + Version.FullVersion

@@ -18,8 +18,10 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Triggers checking for available addressables.
         /// </summary>
-        /// <param name="callback"></param>
-        void CheckAvailableAddressables(Action<AddressableStateReport> callback);
+        /// <param name="callback">Callback that sends the report back.</param>
+        /// <param name="progressCallback">Callback that sends back progress.</param>
+        void CheckAvailableAddressables(Action<AddressableStateReport> callback,
+                                        Action<float> progressCallback = null);
 
         /// <summary>
         /// Check if an asset is in a valid manifest and ready to be loaded.
