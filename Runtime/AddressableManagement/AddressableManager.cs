@@ -53,6 +53,11 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         private bool generatingReport;
 
         /// <summary>
+        /// Reference to the callback to check the progress.
+        /// </summary>
+        private Action<float> checkingProgressCallback;
+
+        /// <summary>
         /// Waiting to report creation.
         /// </summary>
         private WaitUntil creationWait;
@@ -94,8 +99,10 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         {
             Logger.Info("Checking addressables...");
 
+            if (progressCallback != null) checkingProgressCallback = progressCallback;
+
             if (addressableStateReport == null)
-                CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback, progressCallback));
+                CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback));
             else
                 callback?.Invoke(addressableStateReport);
         }
@@ -104,10 +111,8 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// Routine to asynchronously check available addressables.
         /// </summary>
         /// <param name="callback">Callback that sends the report back.</param>
-        /// <param name="progressCallback">Callback that sends back progress.</param>
         /// <returns></returns>
-        private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback,
-                                                              Action<float> progressCallback)
+        private IEnumerator CheckAvailableAddressablesRoutine(Action<AddressableStateReport> callback)
         {
             if (generatingReport)
             {
@@ -133,7 +138,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
                 IResourceLocation location = manifestsHandle.Result[i];
                 Logger.Info("Checking " + location.PrimaryKey + " manifest...");
 
-                progressCallback?.Invoke((float)i / manifestsHandle.Result.Count);
+                checkingProgressCallback?.Invoke((float)i / manifestsHandle.Result.Count);
 
                 AsyncOperationHandle<AddressableManifest> manifestHandle =
                     Addressables.LoadAssetAsync<AddressableManifest>(location);
