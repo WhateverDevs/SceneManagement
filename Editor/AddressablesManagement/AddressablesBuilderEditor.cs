@@ -4,6 +4,7 @@ using System.Linq;
 using Sirenix.Utilities;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.Build.Pipeline.Utilities;
 using UnityEngine;
 using Varguiniano.ExtendedEditor.Editor;
 using WhateverDevs.Core.Runtime.Common;
@@ -61,6 +62,10 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
             if (GUILayout.Button("Build")) Build();
 
+            if (GUILayout.Button(new GUIContent("Clean build",
+                                                "Builds after clearing the addressable build cache (takes more time).")))
+                Build(true);
+
             showSettings = EditorGUILayout.Foldout(showSettings, "Configuration");
 
             if (showSettings) Settings();
@@ -84,7 +89,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
         /// <summary>
         /// Build the addressables.
         /// </summary>
-        private void Build()
+        private void Build(bool cleanBuild = false)
         {
             try
             {
@@ -104,6 +109,13 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                 EditorUtility.DisplayProgressBar(ProgressBarTitle, "Creating tags for groups...", .33f);
 
                 GenerateTagsAndRegisterAssets();
+
+                if (cleanBuild)
+                {
+                    AddressableAssetSettings.CleanPlayerContent();
+                    BuildCache.PurgeCache(true);
+                    Caching.ClearCache();
+                }
 
                 AddressableAssetSettings.BuildPlayerContent();
 
@@ -130,7 +142,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
                 EditorUtility.DisplayProgressBar(ProgressBarTitle,
                                                  "Creating tag for group" + addressableAssetGroup.Name + "...",
-                                                 (float) i / groups.Count);
+                                                 (float)i / groups.Count);
 
                 if (!addressableAssetSettings.GetLabels().Contains(addressableAssetGroup.Name))
                     addressableAssetSettings.AddLabel(addressableAssetGroup.Name);
@@ -139,7 +151,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                                                  "Adding tag to assets in group "
                                                + addressableAssetGroup.Name
                                                + "...",
-                                                 (float) i / groups.Count);
+                                                 (float)i / groups.Count);
 
                 foreach (AddressableAssetEntry asset in addressableAssetGroup.entries)
                 {
@@ -149,10 +161,10 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                                                      "Registering assets to manifest "
                                                    + addressableAssetGroup.Name
                                                    + "...",
-                                                     (float) i / groups.Count);
+                                                     (float)i / groups.Count);
 
                     if (!asset.labels.Contains("Manifest")) continue;
-                    AddressableManifest manifest = (AddressableManifest) asset.MainAsset;
+                    AddressableManifest manifest = (AddressableManifest)asset.MainAsset;
                     manifest.UpdateFullVersion();
                     manifest.AssetGuids.Clear();
 
