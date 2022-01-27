@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Sirenix.Utilities;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build.Pipeline.Utilities;
@@ -46,7 +45,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                 return;
             }
 
-            if (!TargetObject.VersionDependence.AddressableSettingsLocation.IsNullOrWhitespace())
+            if (!TargetObject.VersionDependence.AddressableSettingsLocation.IsNullEmptyOrWhiteSpace())
                 addressableAssetSettings =
                     AssetDatabase.LoadAssetAtPath<AddressableAssetSettings>(TargetObject.VersionDependence
                                                                                .AddressableSettingsLocation);

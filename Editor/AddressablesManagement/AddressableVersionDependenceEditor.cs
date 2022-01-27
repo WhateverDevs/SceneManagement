@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Sirenix.Utilities;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using Varguiniano.ExtendedEditor.Editor;
+using WhateverDevs.Core.Runtime.Common;
 using WhateverDevs.Core.Runtime.DataStructures;
 using WhateverDevs.SceneManagement.Runtime.AddressableManagement;
 
@@ -44,17 +44,17 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                 return;
             }
 
-            if (!TargetObject.AddressableSettingsLocation.IsNullOrWhitespace())
+            if (!TargetObject.AddressableSettingsLocation.IsNullEmptyOrWhiteSpace())
                 addressableAssetSettings =
                     AssetDatabase.LoadAssetAtPath<AddressableAssetSettings>(TargetObject.AddressableSettingsLocation);
 
             if (addressableAssetSettings == null)
             {
                 addressableAssetSettings =
-                    (AddressableAssetSettings) EditorGUILayout.ObjectField("Addressable settings",
-                                                                           addressableAssetSettings,
-                                                                           typeof(AddressableAssetSettings),
-                                                                           false);
+                    (AddressableAssetSettings)EditorGUILayout.ObjectField("Addressable settings",
+                                                                          addressableAssetSettings,
+                                                                          typeof(AddressableAssetSettings),
+                                                                          false);
 
                 if (addressableAssetSettings != null)
                     TargetObject.AddressableSettingsLocation = AssetDatabase.GetAssetPath(addressableAssetSettings);
@@ -105,7 +105,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
                     if (hasManifestLabel)
                     {
-                        AddressableManifest manifest = (AddressableManifest) manifestAsset.MainAsset;
+                        AddressableManifest manifest = (AddressableManifest)manifestAsset.MainAsset;
 
                         manifest.Version =
                             EditorGUILayout.TextField(new GUIContent("Manifest Version",
@@ -163,7 +163,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
 
                         if (dependency == null)
                         {
-                            dependency = new ObjectPair<AddressableManifest, string> {Key = manifest};
+                            dependency = new ObjectPair<AddressableManifest, string> { Key = manifest };
                             TargetObject.Dependencies.Add(dependency);
                         }
 
@@ -178,7 +178,7 @@ namespace WhateverDevs.SceneManagement.Editor.AddressablesManagement
                         EditorGUI.EndDisabledGroup();
 
                         if (GUILayout.Button("Update to current manifest version")
-                         || dependency.Value.IsNullOrWhitespace())
+                         || dependency.Value.IsNullEmptyOrWhiteSpace())
                             dependency.Value = manifest.FullVersion;
                     }
                     else

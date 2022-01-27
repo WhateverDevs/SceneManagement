@@ -1,3 +1,4 @@
+#if ODIN_INSPECTOR_3
 using JetBrains.Annotations;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
@@ -56,3 +57,4 @@ namespace Editor.SceneManagement
         }
     }
 }
+#endif

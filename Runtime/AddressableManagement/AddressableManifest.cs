@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using WhateverDevs.Core.Runtime.Common;
 using Version = WhateverDevs.Core.Runtime.Build.Version;
+
+#if ODIN_INSPECTOR_3
+using Sirenix.OdinInspector;
+#endif
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 {
@@ -15,39 +18,49 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Basic manifest version.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [FoldoutGroup("Manifest Version")]
+        #endif
         public string Version;
 
         /// <summary>
         /// Full manifest version.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [FoldoutGroup("Manifest Version")]
         [InfoBox("The full version gets updated automatically when building.")]
         [ReadOnly]
+        #endif
         public string FullVersion;
 
         /// <summary>
         /// Update the full manifest version.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [FoldoutGroup("Manifest Version")]
         [Button]
+        #endif
         public void UpdateFullVersion() => FullVersion = Version + "." + CurrentDate;
 
         /// <summary>
         /// Reference to the app version.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [FoldoutGroup("App Version")]
         [ShowIf("@AppVersionReference == null")]
+        #endif
         public Version AppVersionReference;
 
         /// <summary>
         /// Minimum app version the manifest requires.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [FoldoutGroup("App Version")]
         [ShowIf("@AppVersionReference != null")]
         [ReadOnly]
+        #endif
         public string MinimumAppVersion;
-        
+
         /// <summary>
         /// Current date in string version format.
         /// </summary>
@@ -56,9 +69,11 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Update the minimum app version to the current app version.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [FoldoutGroup("App Version")]
         [ShowIf("@AppVersionReference != null")]
         [Button]
+        #endif
         public void UpdateMinimumToCurrentAppVersion() => MinimumAppVersion = AppVersionReference.FullVersion;
 
         /// <summary>
@@ -66,7 +81,9 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// This list gets updated when building bundles.
         /// </summary>
         [Tooltip("List of all assets in this addressable group.\nThis list gets updated when building bundles.")]
+        #if ODIN_INSPECTOR_3
         [ReadOnly]
+        #endif
         public List<string> AssetGuids = new List<string>();
     }
 }

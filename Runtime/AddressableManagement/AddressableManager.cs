@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -13,6 +12,10 @@ using WhateverDevs.SceneManagement.Runtime.Utils;
 using Zenject;
 using Object = UnityEngine.Object;
 using Version = WhateverDevs.Core.Runtime.Build.Version;
+
+#if ODIN_INSPECTOR_3
+using Sirenix.OdinInspector;
+#endif
 
 namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
 {
@@ -30,15 +33,19 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Report generated when checking availability of addressables.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [ShowInInspector]
         [ReadOnly]
+        #endif
         private AddressableStateReport addressableStateReport;
 
         /// <summary>
         /// List of all manifests found when checking available addressables.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [ShowInInspector]
         [ReadOnly]
+        #endif
         private List<AddressableManifest> manifests = new();
 
         /// <summary>
@@ -79,7 +86,9 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Reset the manager.
         /// </summary>
+        #if ODIN_INSPECTOR_3
         [Button]
+        #endif
         public void Reset()
         {
             addressableStateReport = null;
@@ -92,8 +101,10 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// </summary>
         /// <param name="callback">Callback that sends the report back.</param>
         /// <param name="progressCallback">Callback that sends back progress.</param>
+        #if ODIN_INSPECTOR_3
         [Button]
         [EnableIf("@UnityEngine.Application.isPlaying")]
+        #endif
         public void CheckAvailableAddressables(Action<AddressableStateReport> callback,
                                                Action<float> progressCallback = null)
         {
