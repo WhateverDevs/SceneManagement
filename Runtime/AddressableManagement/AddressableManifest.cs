@@ -64,6 +64,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Current date in string version format.
         /// </summary>
+        // ReSharper disable once StringLiteralTypo
         private static string CurrentDate => DateTime.Now.ToString("yyyyMMddHHmmss");
 
         /// <summary>

@@ -27,7 +27,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// Groups that don't need a manifest.
         /// </summary>
-        public string[] GroupsToIgnore = {"Built In Data", "Default"};
+        public string[] GroupsToIgnore = { "Built In Data", "Default" };
 
         /// <summary>
         /// Initial manifest version when creating new ones.
@@ -42,8 +42,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// <summary>
         /// List of minimum versions the app requires.
         /// </summary>
-        public SerializableDictionary<AddressableManifest, string> Dependencies =
-            new SerializableDictionary<AddressableManifest, string>();
+        public SerializableDictionary<AddressableManifest, string> Dependencies = new();
 
         /// <summary>
         /// Get a manifest by its name.
@@ -64,7 +63,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
         /// </summary>
         public void CleanNullDependencies()
         {
-            List<int> dependenciesToRemove = new List<int>();
+            List<int> dependenciesToRemove = new();
 
             List<AddressableManifest> keys = Dependencies.Keys.ToList();
 
