@@ -1,8 +1,10 @@
 #if ODIN_INSPECTOR_3
+using System.Linq;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEngine;
+using WhateverDevs.Core.Editor.Utils;
 using WhateverDevs.SceneManagement.Runtime.SceneManagement;
 
 namespace Editor.SceneManagement
@@ -31,13 +33,15 @@ namespace Editor.SceneManagement
                 library =
                     AssetDatabase.LoadAssetAtPath<SceneManager>(SceneManagerCreator.SceneManagerPath);
 
+                if (library == null) library = AssetManagementUtils.FindAssetsByType<SceneManager>().FirstOrDefault();
+
                 if (library == null)
                     library =
-                        (SceneManager) EditorGUILayout.ObjectField(new GUIContent("Scene manager",
-                                                                       "A reference to the scene manager is needed."),
-                                                                   library,
-                                                                   typeof(SceneManager),
-                                                                   false);
+                        (SceneManager)EditorGUILayout.ObjectField(new GUIContent("Scene manager",
+                                                                      "A reference to the scene manager is needed."),
+                                                                  library,
+                                                                  typeof(SceneManager),
+                                                                  false);
             }
             else if (library.SceneNamesList.Count == 0)
                 EditorGUILayout.HelpBox("There are no scenes in the library.", MessageType.Error);
