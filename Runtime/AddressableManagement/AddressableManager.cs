@@ -113,7 +113,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             if (progressCallback != null) checkingProgressCallback = progressCallback;
 
             if (addressableStateReport == null)
-                CoroutineRunner.Instance.RunRoutine(CheckAvailableAddressablesRoutine(callback));
+                CoroutineRunner.RunRoutine(CheckAvailableAddressablesRoutine(callback));
             else
                 callback?.Invoke(addressableStateReport);
         }
@@ -263,11 +263,11 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             }
 
             if (IsAssetInAValidManifest(sceneReference))
-                CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneReference,
-                                                                     sceneName,
-                                                                     loadMode,
-                                                                     progressCallback,
-                                                                     sceneLoadedCallback));
+                CoroutineRunner.RunRoutine(LoadSceneRoutine(sceneReference,
+                                                            sceneName,
+                                                            loadMode,
+                                                            progressCallback,
+                                                            sceneLoadedCallback));
             else
             {
                 Logger.Error("Scene " + sceneName + " does not have a valid manifest!");
@@ -330,7 +330,7 @@ namespace WhateverDevs.SceneManagement.Runtime.AddressableManagement
             }
 
             if (IsAssetInAValidManifest(assetReference))
-                CoroutineRunner.Instance.RunRoutine(LoadAssetRoutine(assetReference, loadedCallback));
+                CoroutineRunner.RunRoutine(LoadAssetRoutine(assetReference, loadedCallback));
             else
             {
                 Logger.Error("Given asset reference does not have a valid manifest!");

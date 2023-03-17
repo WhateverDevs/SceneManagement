@@ -141,7 +141,7 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
                 return;
             }
 
-            CoroutineRunner.Instance.RunRoutine(LoadSceneRoutine(sceneName, mode, progressCallback, callback));
+            CoroutineRunner.RunRoutine(LoadSceneRoutine(sceneName, mode, progressCallback, callback));
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace WhateverDevs.SceneManagement.Runtime.SceneManagement
                 return;
             }
 
-            CoroutineRunner.Instance.RunRoutine(UnloadSceneRoutine(sceneName, progressCallback, callback));
+            CoroutineRunner.RunRoutine(UnloadSceneRoutine(sceneName, progressCallback, callback));
         }
 
         /// <summary>
